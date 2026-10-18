@@ -1,0 +1,18 @@
+{
+  "property_price": 5000000,
+  "down_payment_pct": 0.2,
+  "down_payment_amount": 1000000.0,
+  "loan_amount": 4000000.0,
+  "loan_interest_rate": 0.08,
+  "expected_cagr": 0.13,
+  "dividend_yield": 0.013,
+  "initial_investment": 4000000.0,
+  "monthly_emi": 34244.377892621495,
+  "total_months": 227,
+  "realized_tri_cagr": 0.10786939722694777,
+  "total_swp_extracted": 7773473.781625025,
+  "ending_loan_balance": 0.0,
+  "ending_portfolio_value": 278660.8778461597,
+  "pure_nifty_tri_value": 27773803.88038334,
+  "ending_units": 8.882007347909932
+}

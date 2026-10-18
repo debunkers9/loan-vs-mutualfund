@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cash Buy vs Loan + Invest — Debunked</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=JetBrains+Mono:wght@600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f6f0;
+      --card-bg: #ffffff;
+      --ink: #0f172a;
+      --ink-muted: #64748b;
+      --border-dark: #0f172a;
+      
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --green-border: #10b981;
+      
+      --blue: #2563eb;
+      --blue-bg: #eff6ff;
+      --blue-border: #3b82f6;
+      
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+      --red-border: #ef4444;
+      
+      --amber: #d97706;
+      --amber-bg: #fffbeb;
+      
+      --font-display: "Outfit", system-ui, sans-serif;
+      --font-body: "Inter", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* Screen Container */
+    .app {
+      display: grid;
+      grid-template-rows: 56px 1fr 52px;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Top & Bottom Bars (Minimal & Non-Intrusive) */
+    .topbar, .bottombar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 3vw, 40px);
+      background: rgba(248, 246, 240, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 50;
+      transition: all 0.25s ease;
+    }
+    .topbar { border-bottom: 1px solid #e2dcd2; }
+    .bottombar { border-top: 1px solid #e2dcd2; gap: 20px; }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .brand-label {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      margin-left: 10px;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--border-dark);
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 2px 2px 0 var(--border-dark);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--border-dark); }
+    .btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--border-dark); }
+    .btn.dark { background: var(--ink); color: #fff; }
+
+    /* Stage Canvas */
+    .stage-wrap {
+      display: grid;
+      place-items: center;
+      padding: clamp(10px, 2vh, 20px) clamp(16px, 3vw, 40px);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .stage {
+      width: min(1320px, 100%);
+      height: 100%;
+      background: var(--card-bg);
+      border: 2px solid var(--border-dark);
+      border-radius: 24px;
+      box-shadow: 6px 8px 0 var(--border-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Scene Transitions */
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(24px, 4.5vh, 48px) clamp(28px, 4.5vw, 64px);
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .scene.active {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+
+    /* Common Typographic Hierarchy (Ultra-Crisp, Low Clutter) */
+    .scene-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid currentColor;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .badge-amber { color: var(--amber); background: var(--amber-bg); }
+    .badge-green { color: var(--green); background: var(--green-bg); }
+    .badge-blue { color: var(--blue); background: var(--blue-bg); }
+    .badge-red { color: var(--red); background: var(--red-bg); }
+
+    .title-large {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 4.8vw, 62px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+    .title-sub {
+      font-size: clamp(15px, 1.4vw, 19px);
+      color: var(--ink-muted);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* Massive Display Numbers */
+    .stat-hero {
+      font-family: var(--font-display);
+      font-size: clamp(64px, 9vw, 120px);
+      font-weight: 900;
+      line-height: 0.88;
+      letter-spacing: -0.06em;
+      margin: 16px 0 10px 0;
+    }
+
+    /* Scene 1: The Dilemma & The Pitch */
+    .scene1-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      margin: auto 0;
+    }
+    .choice-card {
+      padding: 32px;
+      border: 2px solid var(--border-dark);
+      border-radius: 20px;
+      background: #faf8f5;
+      box-shadow: 4px 5px 0 var(--border-dark);
+    }
+    .choice-card.highlight {
+      background: #fff;
+      border-color: var(--blue);
+      box-shadow: 5px 6px 0 var(--blue);
+    }
+    .choice-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
+    }
+    .choice-main {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 2.5vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+    }
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .flow-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #fff;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 12px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Scene 2: Pure Compounding Hero */
+    .scene2-center {
+      text-align: center;
+      margin: auto 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .pill-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .pill-data {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 10px 18px;
+      border-radius: 99px;
+      background: #fff;
+      border: 1.5px solid var(--border-dark);
+      box-shadow: 2px 3px 0 var(--border-dark);
+    }
+
+    /* Scene 3 & 4: Result Comparison Split */
+    .result-split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 36px;
+      align-items: center;
+      margin: auto 0;
+    }
+    .result-card-huge {
+      padding: clamp(24px, 4vh, 40px);
+      border: 2px solid var(--border-dark);
+      border-radius: 22px;
+      box-shadow: 6px 7px 0 var(--border-dark);
+      background: #fff;
+    }
+    .result-card-huge.blue-glow { border-color: var(--blue); box-shadow: 6px 7px 0 var(--blue); }
+    .result-card-huge.red-glow { border-color: var(--red); box-shadow: 6px 7px 0 var(--red); }
+    
+    .units-strip {
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 14px;
+    }
+    .units-header {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .bar-track {
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 1s ease;
+    }
+
+    .takeaway-box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .takeaway-card {
+      padding: 24px;
+      border: 2px solid var(--border-dark);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 4px 4px 0 var(--border-dark);
+    }
+    .takeaway-card h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .takeaway-card p {
+      font-size: 14px;
+      color: var(--ink-muted);
+      line-height: 1.45;
+    }
+
+    /* Scene 5: 3-Way Master Visual */
+    .master-3way {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: auto 0;
+      align-items: stretch;
+    }
+    .card-col {
+      padding: 30px 24px;
+      border: 2px solid var(--border-dark);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #fff;
+      box-shadow: 4px 5px 0 var(--border-dark);
+      text-align: center;
+    }
+    .card-col.green-win {
+      border-color: var(--green);
+      background: #f0fdf4;
+      box-shadow: 5px 6px 0 var(--green);
+    }
+    .card-col.red-loss {
+      border-color: var(--red);
+      background: #fef2f2;
+      box-shadow: 5px 6px 0 var(--red);
+    }
+    .col-num {
+      font-family: var(--font-display);
+      font-size: clamp(38px, 4.5vw, 62px);
+      font-weight: 900;
+      line-height: 0.95;
+      margin: 18px 0 8px 0;
+      letter-spacing: -0.05em;
+    }
+
+    /* Scene 6: Golden Takeaway */
+    .scene6-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin: auto 0;
+    }
+    .contrast-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .contrast-box {
+      padding: 28px;
+      border: 2px solid var(--border-dark);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 4px 5px 0 var(--border-dark);
+    }
+    .contrast-box.fantasy { background: #fffdf5; border-color: var(--amber); box-shadow: 5px 5px 0 var(--amber); }
+    .contrast-box.reality { background: #eff6ff; border-color: var(--blue); box-shadow: 5px 5px 0 var(--blue); }
+    .contrast-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+    .contrast-desc {
+      font-size: 13.5px;
+      color: var(--ink-muted);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    .golden-banner {
+      background: var(--ink);
+      color: #fff;
+      padding: 24px 32px;
+      border-radius: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+    }
+    .golden-banner h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 40px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    /* Controls & Progress */
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      max-width: 520px;
+    }
+    .timeline-track {
+      flex: 1;
+      height: 6px;
+      background: #e2dcd2;
+      border-radius: 99px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .timeline-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--ink);
+      border-radius: 99px;
+      transition: width 0.08s linear;
+    }
+    .dots-nav { display: flex; gap: 8px; }
+    .dot-btn {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-dark);
+      background: #fff;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+    .dot-btn.active { width: 24px; border-radius: 99px; background: var(--ink); }
+
+    /* Video Clean Mode (press 'V' to hide player chrome) */
+    body.clean-mode .topbar,
+    body.clean-mode .bottombar {
+      display: none !important;
+    }
+    body.clean-mode .app {
+      grid-template-rows: 1fr;
+    }
+    body.clean-mode .stage-wrap {
+      padding: 0;
+    }
+    body.clean-mode .stage {
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    @media (max-width: 900px) {
+      .scene1-grid, .result-split, .master-3way, .contrast-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display:flex;align-items:center;">
+        <span class="brand-tag">DEBUNK</span>
+        <span class="brand-label">Cash vs Home Loan + Nifty</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn" id="videoModeBtn" type="button" title="Shortcut: V">🎥 Video Mode (V)</button>
+        <button class="btn dark" id="playBtn" type="button"><span id="playIcon">⏸</span> <span id="playText">Pause</span></button>
+        <button class="btn" id="fsBtn" type="button">⛶ Fullscreen</button>
+      </div>
+    </header>
+
+    <!-- Center Stage -->
+    <main class="stage-wrap">
+      <div class="stage">
+
+        <!-- SCENE 1: The Finfluencer Hack -->
+        <article class="scene active" data-duration="12000">
+          <div>
+            <span class="scene-badge badge-amber">01 / The Hack</span>
+            <h1 class="title-large">You Have ₹50 Lakh Cash.<br>What Should You Do?</h1>
+          </div>
+          
+          <div class="scene1-grid">
+            <div class="choice-card">
+              <div class="choice-label">Option A: Pay Cash</div>
+              <div class="choice-main">Buy home outright for ₹50L cash. Zero debt.</div>
+            </div>
+
+            <div class="choice-card highlight">
+              <div class="choice-label" style="color:var(--blue)">Option B: The Finfluencer Pitch</div>
+              <div class="flow-steps">
+                <div class="flow-item"><span>Pay 20% Down</span><span>₹10 Lakh</span></div>
+                <div class="flow-item"><span>Borrow Loan @ 8%</span><span>₹40 Lakh</span></div>
+                <div class="flow-item" style="border-color:var(--blue);color:var(--blue)">
+                  <span>Invest in Nifty @ 12%</span><span>₹40 Lakh</span>
+                </div>
+              </div>
+              <div style="margin-top:14px;text-align:center;font-family:var(--font-display);font-size:18px;font-weight:900;color:var(--blue)">
+                “Free house + free profit?”
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">
+            Let’s backtest 19 years of real market data (2007 – 2026).
+          </div>
+        </article>
+
+        <!-- SCENE 2: The Benchmark (Untouched Compounding) -->
+        <article class="scene" data-duration="14000">
+          <div>
+            <span class="scene-badge badge-green">02 / Pure Compounding</span>
+            <h1 class="title-large">The Benchmark Nobody Shows You</h1>
+            <p class="title-sub">What happens if you simply leave ₹40 Lakh untouched in Nifty 50 TRI?</p>
+          </div>
+
+          <div class="scene2-center">
+            <div style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:var(--green)">
+              UNTOUCHED NIFTY 50 TRI (2007 – 2026)
+            </div>
+            <div class="stat-hero" style="color:var(--green)">₹2.77 Cr</div>
+            <div style="font-family:var(--font-display);font-size:22px;font-weight:800;">
+              ₹40 Lakh grew 6.94x into nearly 3 Crore
+            </div>
+            <div class="pill-group">
+              <div class="pill-data">10.8% Realized CAGR</div>
+              <div class="pill-data">Zero Withdrawals</div>
+              <div class="pill-data">885 Units Intact</div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">
+            Survives 2008 GFC, 2020 Covid, and all corrections untouched.
+          </div>
+        </article>
+
+        <!-- SCENE 3: 6.5% Best Case Illusion -->
+        <article class="scene" data-duration="17000">
+          <div>
+            <span class="scene-badge badge-blue">03 / Best Case Loan</span>
+            <h1 class="title-large">6.5% Rate: It Looks Like a Win…</h1>
+            <p class="title-sub">Monthly EMI: ₹30,663 paid via monthly mutual fund SWP.</p>
+          </div>
+
+          <div class="result-split">
+            <div class="result-card-huge blue-glow">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--blue)">ENDING PORTFOLIO BALANCE</div>
+              <div class="stat-hero" style="color:var(--blue)">₹31.54 L</div>
+              
+              <div class="units-strip">
+                <div class="units-header">
+                  <span>Units Left: 100 of 885</span>
+                  <span style="color:var(--red)">-88% LIQUIDATED</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 11.4%; background: var(--blue);"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="takeaway-box">
+              <div class="takeaway-card">
+                <h3 style="color:var(--amber)">📉 Capital Shrank</h3>
+                <p>You started with ₹40L in 2007. After 19 years, you have ₹31.5L. Capital went backwards.</p>
+              </div>
+              <div class="takeaway-card">
+                <h3 style="color:var(--red)">💸 ₹2.45 Crore Opportunity Cost</h3>
+                <p>Untouched Nifty became ₹2.77 Cr. Routing cash through a loan cost ₹2.45 Crore in lost compounding.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">
+            Even with an ultra-low 6.5% rate, the golden goose was chopped for monthly bills.
+          </div>
+        </article>
+
+        <!-- SCENE 4: 8% Normal Rate & 2008 Trap -->
+        <article class="scene" data-duration="22000">
+          <div>
+            <span class="scene-badge badge-red">04 / Normal Rate Reality</span>
+            <h1 class="title-large">8.0% Rate: A Tiny 1.5% Hike<br><span style="color:var(--red)">Destroys 93% of the Capital</span></h1>
+          </div>
+
+          <div class="result-split">
+            <div class="result-card-huge red-glow">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--red)">ENDING BALANCE (AFTER 227 MONTHS)</div>
+              <div class="stat-hero" style="color:var(--red)">₹2.79 L</div>
+              
+              <div class="units-strip">
+                <div class="units-header">
+                  <span>Units Left: 8.9 of 885</span>
+                  <span style="color:var(--red)">99% VAPORIZED</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 1.0%; background: var(--red);"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="takeaway-box">
+              <div class="takeaway-card" style="background:#fef2f2;border-color:var(--red)">
+                <h3 style="color:var(--red)">💥 The 2008 Crash Trap</h3>
+                <p>In 2008, Nifty crashed 55%. Your mutual fund was bleeding, but the bank's ₹34,244 EMI didn't budge.</p>
+              </div>
+              <div class="takeaway-card">
+                <h3>🐐 Forced Selling at Rock Bottom</h3>
+                <p>You sold double the shares at rock-bottom prices. When the market rallied, you had no shares left.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">
+            EMI was only ₹3,581 more per month. But forced selling killed the portfolio.
+          </div>
+        </article>
+
+        <!-- SCENE 5: The 3-Way Master Comparison -->
+        <article class="scene" data-duration="15000">
+          <div>
+            <span class="scene-badge badge-blue">05 / The 3 Outcomes</span>
+            <h1 class="title-large">The Three Outcomes Side-by-Side</h1>
+            <p class="title-sub">Same ₹40 Lakh starting capital. Same 19-year period. Same 10.79% market return.</p>
+          </div>
+
+          <div class="master-3way">
+            <div class="card-col green-win">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--green)">1. UNTOUCHED NIFTY</div>
+              <div class="col-num" style="color:var(--green)">₹2.77 Cr</div>
+              <div style="font-size:13px;font-weight:700;color:var(--green)">885 Units (100% Intact)</div>
+            </div>
+
+            <div class="card-col">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--blue)">2. 6.5% BEST LOAN</div>
+              <div class="col-num" style="color:var(--blue)">₹31.54 L</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink-muted)">100 Units Left (11%)</div>
+            </div>
+
+            <div class="card-col red-loss">
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;color:var(--red)">3. 8.0% NORMAL LOAN</div>
+              <div class="col-num" style="color:var(--red)">₹2.79 L</div>
+              <div style="font-size:13px;font-weight:700;color:var(--red)">8.9 Units Left (1%)</div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);text-align:center;">
+            A tiny 1.5% interest rate change wiped out 90% of what was left.
+          </div>
+        </article>
+
+        <!-- SCENE 6: The Golden Takeaway -->
+        <article class="scene" data-duration="18000">
+          <div>
+            <span class="scene-badge badge-amber">06 / The Core Rule</span>
+            <h1 class="title-large">Cash Flow Beats Spreadsheet Spread</h1>
+          </div>
+
+          <div class="scene6-wrap">
+            <div class="contrast-row">
+              <div class="contrast-box fantasy">
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--amber)">SPREADSHEET FANTASY</span>
+                <div class="contrast-title">“12% - 8% = 4% Free Profit”</div>
+                <div class="contrast-desc">Assumes markets move in a smooth, continuous straight line. Ignores market drawdowns and forced selling.</div>
+              </div>
+
+              <div class="contrast-box reality">
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:800;color:var(--blue)">MARKET REALITY</span>
+                <div class="contrast-title">“EMI Arrives Every 1st of the Month”</div>
+                <div class="contrast-desc">Markets crash unpredictably. Rigid monthly bills force you to liquidate assets at the worst possible time.</div>
+              </div>
+            </div>
+
+            <div class="golden-banner">
+              <div>
+                <h2>Debt needs certainty.<br>Compounding needs time.</h2>
+                <div style="font-size:14px;color:#94a3b8;margin-top:4px;">Never make a volatile asset pay a rigid bill.</div>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:12px;font-weight:800;background:#fde047;color:var(--ink);padding:10px 18px;border-radius:10px;">
+                TEST BEFORE YOU TRUST
+              </div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--ink-muted);">
+            Illustrative backtest based on Nifty 50 Total Return Index (2007 – 2026).
+          </div>
+        </article>
+
+      </div>
+    </main>
+
+    <!-- Bottombar -->
+    <footer class="bottombar">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn" id="prevBtn" type="button">← Prev</button>
+        <button class="btn" id="nextBtn" type="button">Next →</button>
+        <span id="timeDisplay" style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--ink-muted);margin-left:8px;">00:00 / 01:38</span>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-track" id="timeTrack">
+          <div class="timeline-fill" id="timeFill"></div>
+        </div>
+        <div class="dots-nav" id="dotsNav"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--ink-muted);">Space: Play · V: Video Mode</span>
+        <button class="btn" id="restartBtn" type="button">↻ Restart</button>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const sceneElements = [...document.querySelectorAll('.scene')];
+    const scenes = sceneElements.map(el => ({ duration: Number(el.dataset.duration) }));
+    const totalDuration = scenes.reduce((sum, s) => sum + s.duration, 0);
+
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const timeFill = document.getElementById('timeFill');
+    const timeTrack = document.getElementById('timeTrack');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const dotsNav = document.getElementById('dotsNav');
+    const videoModeBtn = document.getElementById('videoModeBtn');
+
+    let currentScene = 0;
+    let sceneElapsed = 0;
+    let isPlaying = true;
+    let lastTime = performance.now();
+
+    function formatTime(ms) {
+      const sec = Math.max(0, Math.floor(ms / 1000));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function getStartMs(idx) {
+      return scenes.slice(0, idx).reduce((sum, s) => sum + s.duration, 0);
+    }
+
+    function initDots() {
+      sceneElements.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'dot-btn' + (idx === 0 ? ' active' : '');
+        dot.title = `Scene ${idx + 1}`;
+        dot.addEventListener('click', () => goToScene(idx));
+        dotsNav.appendChild(dot);
+      });
+    }
+
+    function updateDots() {
+      [...dotsNav.children].forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentScene);
+      });
+    }
+
+    function goToScene(idx) {
+      currentScene = Math.max(0, Math.min(sceneElements.length - 1, idx));
+      sceneElapsed = 0;
+      sceneElements.forEach((el, i) => el.classList.toggle('active', i === currentScene));
+      updateDots();
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const currentMs = getStartMs(currentScene) + sceneElapsed;
+      const pct = Math.min(100, (currentMs / totalDuration) * 100);
+      timeFill.style.width = `${pct}%`;
+      timeDisplay.textContent = `${formatTime(currentMs)} / ${formatTime(totalDuration)}`;
+
+      document.getElementById('prevBtn').disabled = currentScene === 0;
+      document.getElementById('nextBtn').disabled = currentScene === sceneElements.length - 1;
+
+      playIcon.textContent = isPlaying ? '⏸' : '▶';
+      playText.textContent = isPlaying ? 'Pause' : 'Play';
+      playBtn.classList.toggle('dark', isPlaying);
+    }
+
+    function togglePlay(state) {
+      const wasPlaying = isPlaying;
+      isPlaying = typeof state === 'boolean' ? state : !isPlaying;
+      lastTime = performance.now();
+      updateProgress();
+      if (isPlaying && !wasPlaying) requestAnimationFrame(loop);
+    }
+
+    function loop(now) {
+      if (!isPlaying) return;
+      const delta = Math.min(100, now - lastTime);
+      lastTime = now;
+      sceneElapsed += delta;
+
+      if (sceneElapsed >= scenes[currentScene].duration) {
+        if (currentScene === sceneElements.length - 1) {
+          sceneElapsed = scenes[currentScene].duration;
+          togglePlay(false);
+          return;
+        }
+        goToScene(currentScene + 1);
+      }
+
+      updateProgress();
+      requestAnimationFrame(loop);
+    }
+
+    timeTrack.addEventListener('click', (e) => {
+      const rect = timeTrack.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      const targetMs = pos * totalDuration;
+
+      let acc = 0;
+      for (let i = 0; i < scenes.length; i++) {
+        if (targetMs < acc + scenes[i].duration || i === scenes.length - 1) {
+          currentScene = i;
+          sceneElapsed = targetMs - acc;
+          sceneElements.forEach((el, idx) => el.classList.toggle('active', idx === currentScene));
+          updateDots();
+          updateProgress();
+          break;
+        }
+        acc += scenes[i].duration;
+      }
+    });
+
+    function toggleVideoMode() {
+      document.body.classList.toggle('clean-mode');
+      if (document.body.classList.contains('clean-mode')) {
+        videoModeBtn.textContent = '✕ Exit Video Mode';
+      } else {
+        videoModeBtn.textContent = '🎥 Video Mode (V)';
+      }
+    }
+
+    videoModeBtn.addEventListener('click', toggleVideoMode);
+    playBtn.addEventListener('click', () => togglePlay());
+    document.getElementById('prevBtn').addEventListener('click', () => goToScene(currentScene - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => goToScene(currentScene + 1));
+    document.getElementById('restartBtn').addEventListener('click', () => { goToScene(0); togglePlay(true); });
+    document.getElementById('fsBtn').addEventListener('click', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+      else if (e.key === 'ArrowLeft') goToScene(currentScene - 1);
+      else if (e.key === 'ArrowRight') goToScene(currentScene + 1);
+      else if (e.key.toLowerCase() === 'v') toggleVideoMode();
+      else if (e.key.toLowerCase() === 'f') document.getElementById('fsBtn').click();
+    });
+
+    initDots();
+    updateProgress();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
